@@ -137,11 +137,9 @@ class NetworkLatencyVisualizer {
             chrome.devtools.inspectedWindow.eval(
                 "location.href",
                 (result, isException) => {
-                    console.log("[Balls] Attempting to attach to tab:", result);
                     if (!isException && result) {
                         // Check if it's a special Chrome page
                         if (result.startsWith('chrome://') || result === 'about:blank' || result.startsWith('chrome-extension://')) {
-                            console.log("[Balls] Special Chrome page detected - limited functionality");
                             this.updateMonitoringStatus(false, "Cannot monitor Chrome internal pages");
                             // Update the empty state message
                             const container = document.getElementById('requests-container');
@@ -151,7 +149,6 @@ class NetworkLatencyVisualizer {
                             this.startNetworkMonitoring();
                         }
                     } else {
-                        console.log("[Balls] Could not get current tab URL");
                         this.updateMonitoringStatus(false, "Waiting for valid page");
                     }
                 }
@@ -170,8 +167,6 @@ class NetworkLatencyVisualizer {
         chrome.devtools.network.onRequestFinished.addListener((request) => {
             this.handleNetworkRequest(request);
         });
-        
-        console.log("[Balls] Network monitoring started using DevTools API");
     }
     
     handleNetworkRequest(request) {
@@ -383,27 +378,16 @@ class NetworkLatencyVisualizer {
     
     updateMonitoringStatus(active, message = '') {
         // Status indicator has been removed from UI
-        // Just log the status for debugging
-        if (active) {
-            console.log('[Balls] Monitoring requests');
-        } else {
-            console.log('[Balls]', message || 'Network monitoring inactive');
-        }
+        // Monitoring status is handled internally
     }
 }
 
 // Initialize the visualizer when the panel loads
-console.log("[Balls Panel] Script loaded");
-
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("[Balls Panel] DOMContentLoaded - Initializing visualizer");
     new NetworkLatencyVisualizer();
 });
 
 // Also try to initialize immediately if DOM is already loaded
-if (document.readyState === 'loading') {
-    console.log("[Balls Panel] Document still loading, waiting for DOMContentLoaded");
-} else {
-    console.log("[Balls Panel] Document already loaded, initializing immediately");
+if (document.readyState !== 'loading') {
     new NetworkLatencyVisualizer();
 }
