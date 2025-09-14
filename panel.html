@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balls</title>
+    <style>
+        /* Light mode (default) */
+        :root {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: white;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-color: #ddd;
+            --shadow: rgba(0,0,0,0.1);
+            --label-bg: #505050;
+            --label-text: white;
+            --slider-bg: #ddd;
+            --slider-thumb: #007cff;
+        }
+        
+        /* Dark mode - Chrome DevTools dark theme detection */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #202124;
+                --bg-secondary: #292a2d;
+                --text-primary: #e8eaed;
+                --text-secondary: #9aa0a6;
+                --border-color: #3c4043;
+                --shadow: rgba(0,0,0,0.3);
+                --label-bg: #3c4043;
+                --label-text: #e8eaed;
+                --slider-bg: #3c4043;
+                --slider-thumb: #8ab4f8;
+            }
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        .container {
+            width: 100%;
+            max-width: none;
+        }
+        
+        .palette-selector {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .palette-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+            min-width: 50px;
+        }
+        
+        .palette-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .palette-btn {
+            padding: 4px 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .palette-btn:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .palette-btn.active {
+            background: var(--slider-thumb);
+            color: white;
+            border-color: var(--slider-thumb);
+        }
+        
+        .controls {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+        
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .speed-control label {
+            font-weight: 500;
+            min-width: 120px;
+            color: var(--text-primary);
+        }
+        
+        .speed-slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--slider-bg);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--slider-thumb);
+            cursor: pointer;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+        
+        .speed-value {
+            font-family: monospace;
+            font-weight: 500;
+            min-width: 80px;
+            text-align: right;
+            color: var(--text-primary);
+        }
+        
+        .clear-button {
+            background: #222222;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        
+        .clear-button:hover {
+            background: #555555;
+        }
+        
+        .restart-button {
+            background: #222222;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        
+        .restart-button:hover {
+            background: #555555;
+        }
+        
+        .svg-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px var(--shadow);
+            overflow: hidden;
+            min-height: 100px;
+            width: 100%;
+        }
+        
+        .request-row {
+            position: relative;
+            height: 60px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .request-row:last-child {
+            border-bottom: none;
+        }
+        
+        .request-label {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100%;
+            background: var(--label-bg);
+            color: var(--label-text);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 15px;
+            box-sizing: border-box;
+        }
+        
+        .request-name {
+            font-weight: 600;
+            font-size: 14.4px;
+            margin-bottom: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--label-text);
+        }
+        
+        .request-info {
+            font-size: 10px;
+            opacity: 0.9;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding-right: 10px;
+            color: var(--label-text);
+        }
+        
+        .ball {
+            position: absolute;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            top: 4px;
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            border: 2px solid rgba(0,0,0,0.2);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="palette-selector">
+            <span class="palette-label">Colors:</span>
+            <div class="palette-buttons">
+                <button class="palette-btn active" data-palette="vibrant">Vibrant</button>
+                <button class="palette-btn" data-palette="pastel">Pastel</button>
+                <button class="palette-btn" data-palette="saturated">Saturated</button>
+                <button class="palette-btn" data-palette="monochrome">Monochrome</button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="speed-control">
+                <label for="speedSlider">Animation Speed:</label>
+                <input type="range" id="speedSlider" class="speed-slider" min="0.001" max="0.1" step="0.001" value="0.01">
+                <div id="speedValue" class="speed-value">0.010x</div>
+                <button id="restartButton" class="restart-button">Restart</button>
+                <button id="clearButton" class="clear-button">Clear</button>
+            </div>
+        </div>
+        
+        <div class="svg-container">
+            <div id="requests-container">
+                <div class="empty-state">
+                    Navigate to a webpage to start monitoring network requests
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="panel.js"></script>
+</body>
+</html>

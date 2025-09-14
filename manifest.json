@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Balls",
+  "version": "1.0.0",
+  "description": "A Chrome DevTools extension that visualizes network request latencies with bouncing balls",
+  "permissions": [],
+  "devtools_page": "devtools.html",
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}
